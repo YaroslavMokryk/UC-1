@@ -6,7 +6,7 @@ namespace UC_1.Services
     {
         public CountriesService() { }
 
-        public async Task<IList<JToken>> GetCountries()
+        public async Task<JArray> GetCountries(string? nameFilter)
         {
             var httpClient = new HttpClient();
             var response = await httpClient.GetAsync("https://restcountries.com/v3.1/all");
@@ -15,7 +15,15 @@ namespace UC_1.Services
                 throw new BadHttpRequestException($"Error when retrieving country data. Status: {response?.StatusCode} Reason: {response?.ReasonPhrase}");
             }
             var content = await response.Content.ReadAsStringAsync();
-            return JArray.Parse(content).Values().ToList();
+            var countries = JArray.Parse(content);
+
+            return countries;
+        }
+
+        private JArray FilterByName(JArray countries, string nameFilter)
+        {
+            return JArray.FromObject(countries.Where(c => c["name"]?["common"] != null && c["name"]["common"].ToString()
+                .Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase)).Select(o => (JObject)o).ToList());
         }
     }
 }
