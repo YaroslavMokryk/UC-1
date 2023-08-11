@@ -6,7 +6,7 @@ namespace UC_1.Services
     {
         public CountriesService() { }
 
-        public async Task<JArray> GetCountries(string? nameFilter, int? populationFilter, string? sortBy)
+        public async Task<JArray> GetCountries(string? nameFilter, int? populationFilter, string? sortBy, int? limit)
         {
             var httpClient = new HttpClient();
             var response = await httpClient.GetAsync("https://restcountries.com/v3.1/all");
@@ -22,24 +22,26 @@ namespace UC_1.Services
 
         private JArray FilterByName(JArray countries, string nameFilter)
         {
-            return JArray.FromObject(countries.Where(c => c["name"]?["common"] != null && c["name"]["common"].ToString()
-                .Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase)).Select(o => (JObject)o).ToList());
+            return new JArray(countries.Where(c => c["name"]?["common"] != null && c["name"]["common"].ToString()
+                .Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase)));
         }
 
         private JArray FilterByPopulation(JArray countries, int populationFilter)
         {
-            return JArray.FromObject(countries.Where(c => c["population"] != null && (int)c["population"] / 1_000_000 <= 10)
-                .Select(o => (JObject)o).ToList());
+            return new JArray(countries.Where(c => c["population"] != null && (int)c["population"] / 1_000_000 <= populationFilter));
         }
 
         private JArray SortByName(JArray countries, bool ascending)
         {
             if (ascending) {
-                return JArray.FromObject(countries.OrderBy(c => c["name"]["common"].ToString())
-                    .Select(o => (JObject)o).ToList());
+                return new JArray(countries.OrderBy(c => c["name"]["common"].ToString()));
             }
-            return JArray.FromObject(countries.OrderByDescending(c => c["name"]["common"].ToString())
-                    .Select(o => (JObject)o).ToList());
+            return new JArray(countries.OrderByDescending(c => c["name"]["common"].ToString()));
+        }
+
+        private JArray PaginateByLimit(JArray countries, int limit)
+        {
+            return new JArray(countries.Take(limit));
         }
     }
 }
