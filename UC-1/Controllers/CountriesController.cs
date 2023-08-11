@@ -20,11 +20,12 @@ namespace UC_1.Controllers
         /// </summary>
         /// <param name="nameFilter">Country name or part of name for filtering</param>
         /// <param name="populationFilter">Max country population for filtering</param>
+        /// <param name="sortBy">Sorting method, "ascend" or "descend"</param>
         /// <returns>List of countries</returns>
         [HttpGet]
-        public async Task<string> Get(string? nameFilter, int? populationFilter)
+        public async Task<string> Get(string? nameFilter, int? populationFilter, string? sortBy)
         {
-            var json = await _countriesService.GetCountries(nameFilter, populationFilter);
+            var json = await _countriesService.GetCountries(nameFilter, populationFilter, sortBy);
             string response = JsonConvert.SerializeObject(json);
             return response;
         }
