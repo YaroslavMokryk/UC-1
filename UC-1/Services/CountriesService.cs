@@ -17,6 +17,23 @@ namespace UC_1.Services
             var content = await response.Content.ReadAsStringAsync();
             var countries = JArray.Parse(content);
 
+            if (nameFilter != null)
+                countries = FilterByName(countries, nameFilter);
+
+            if (populationFilter != null)
+                countries = FilterByPopulation(countries, populationFilter.Value);
+
+            if (sortBy != null)
+            {
+                if (sortBy.Equals("ascend", StringComparison.CurrentCultureIgnoreCase))
+                    countries = SortByName(countries, true);
+                else if (sortBy.Equals("descend", StringComparison.CurrentCultureIgnoreCase))
+                    countries = SortByName(countries, false);
+            }
+
+            if (limit != null)
+                countries = PaginateByLimit(countries, limit.Value);
+
             return countries;
         }
 
