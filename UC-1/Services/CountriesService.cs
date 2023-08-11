@@ -6,7 +6,7 @@ namespace UC_1.Services
     {
         public CountriesService() { }
 
-        public async Task<JArray> GetCountries(string? nameFilter)
+        public async Task<JArray> GetCountries(string? nameFilter, int? populationFilter)
         {
             var httpClient = new HttpClient();
             var response = await httpClient.GetAsync("https://restcountries.com/v3.1/all");
@@ -24,6 +24,12 @@ namespace UC_1.Services
         {
             return JArray.FromObject(countries.Where(c => c["name"]?["common"] != null && c["name"]["common"].ToString()
                 .Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase)).Select(o => (JObject)o).ToList());
+        }
+
+        private JArray FilterByPopulation(JArray countries, int populationFilter)
+        {
+            return JArray.FromObject(countries.Where(c => c["population"] != null && (int)c["population"] / 1_000_000 <= 10)
+                .Select(o => (JObject)o).ToList());
         }
     }
 }
