@@ -4,12 +4,16 @@ namespace UC_1.Services
 {
     public class CountriesService : ICountriesService
     {
-        public CountriesService() { }
+        private readonly HttpClient _httpClient;
+
+        public CountriesService(IHttpClientFactory httpClientFactory) {
+            _httpClient = httpClientFactory.CreateClient();
+        }
 
         public async Task<JArray> GetCountries(string? nameFilter, int? populationFilter, string? sortBy, int? limit)
         {
-            var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync("https://restcountries.com/v3.1/all");
+            //var httpClient = new HttpClient();
+            var response = await _httpClient.GetAsync("https://restcountries.com/v3.1/all");
             if (response == null || !response.IsSuccessStatusCode)
             {
                 throw new BadHttpRequestException($"Error when retrieving country data. Status: {response?.StatusCode} Reason: {response?.ReasonPhrase}");
